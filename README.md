@@ -27,6 +27,26 @@ or
 pip install https://github.com/deverte/lmfit/releases/download/v0.1.0/lmfit-0.1.0.tar.gz
 ```
 
+## Documentation
+The main function of this package is `fit_peaks`.
+
+### lmfit.fit
+> Calculates theoretical parameters from an experimental curve with help of LM algorithm and
+returns theoretical curves, these parameters and their errors.
+>
+> Args:
+&nbsp;&nbsp;&nbsp;&nbsp;data: Initial data.
+&nbsp;&nbsp;&nbsp;&nbsp;baseline: Data separator line.
+&nbsp;&nbsp;&nbsp;&nbsp;expansion: Value at which the peaks will expand (on both directions).
+&nbsp;&nbsp;&nbsp;&nbsp;fp: Number of fitting points.
+&nbsp;&nbsp;&nbsp;&nbsp;A: Initial `A` parameter.
+&nbsp;&nbsp;&nbsp;&nbsp;k: Initial `k` parameter.
+> 
+> Returns:
+&nbsp;&nbsp;&nbsp;&nbsp;pd.Series: Theoretical curves,
+&nbsp;&nbsp;&nbsp;&nbsp;List[float]: List of calculated parameters,
+&nbsp;&nbsp;&nbsp;&nbsp;List[float]: List of errors
+
 ## Usage
 ```py
 import pandas as pd
@@ -46,7 +66,7 @@ A = 4.5
 k = 0.2
 
 # Fitting curves
-theoretical_curves, parameters, qtf = lmfit.fit_peaks(
+theoretical_curves, parameters, qtf = lm.fit_peaks(
     data, baseline=baseline, expansion=expansion, fp=fp, A=A, k=k)
 
 # Showing results
