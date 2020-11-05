@@ -36,12 +36,12 @@ The main function of this package is `fit_peaks`.
 > Calculates theoretical parameters from an experimental curve with help of LM algorithm and returns theoretical curves, these parameters and their errors.  
 >
 > Args:  
-&nbsp;&nbsp;&nbsp;&nbsp;`data`: Initial data.  
-&nbsp;&nbsp;&nbsp;&nbsp;`baseline`: Data separator line. Default: 21.5  
-&nbsp;&nbsp;&nbsp;&nbsp;`expansion`: Value at which the peaks will expand (on both directions). Default: 2  
-&nbsp;&nbsp;&nbsp;&nbsp;`fp`: Number of fitting points. Default: 200  
-&nbsp;&nbsp;&nbsp;&nbsp;`A`: Initial `A` parameter. Default: 4.5  
-&nbsp;&nbsp;&nbsp;&nbsp;`k`: Initial `k` parameter. Default: 0.2  
+&nbsp;&nbsp;&nbsp;&nbsp;`data` [*pd.Series*]: Initial data.  
+&nbsp;&nbsp;&nbsp;&nbsp;`baseline` [*float*]: Data separator line. Default: 21.5  
+&nbsp;&nbsp;&nbsp;&nbsp;`expansion` [*int*]: Value at which the peaks will expand (on both directions). Default: 2  
+&nbsp;&nbsp;&nbsp;&nbsp;`fp` [*int*]: Number of fitting points. Default: 200  
+&nbsp;&nbsp;&nbsp;&nbsp;`A` [*float*]: Initial `A` parameter. Default: 4.5  
+&nbsp;&nbsp;&nbsp;&nbsp;`k` [*float*]: Initial `k` parameter. Default: 0.2  
 > 
 > Returns:  
 &nbsp;&nbsp;&nbsp;&nbsp;`pd.Series`: Theoretical curves,  
