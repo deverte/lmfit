@@ -10,7 +10,8 @@ using Levenberg–Marquardt (LM) algorithm (see [Wikipedia — Levenberg–Marqu
 
 - [Installation](#installation)
 - [Documentation](#documentation)
-    - [lmfit.fit](#lmfit.fit)
+    - [fit](#lmfitfitdata-baseline215-expansion2-fp200-a45-k02)
+    - [read_data](#lmfitread_datadata_path)
 - [Usage](#usage)
 - [Package information](#package-information)
 - [License](#license)
