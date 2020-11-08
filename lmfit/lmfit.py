@@ -6,14 +6,13 @@ Levenberg–Marquardt (LM) algorithm
 
     Typical usage example:
 
-    import pandas as pd
     import lmfit as lm
 
     # Data selection
     data_path = 'some/data/path'
     track = 24
 
-    df = pd.read_data(data_path)
+    df = lm.read_data(data_path)
     data = df[track] # Select required series
 
     # Fitting settings
