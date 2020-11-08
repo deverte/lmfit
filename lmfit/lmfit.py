@@ -11,23 +11,24 @@ Levenberg–Marquardt (LM) algorithm
 
     # Data selection
     data_path = 'some/data/path'
-    df = pd.read_csv(data_path, sep=',', decimal='.', index_col=0, na_values='')
-    data = df['Track 0'] # Select required series
+    track = 24
+
+    df = pd.read_data(data_path)
+    data = df[track] # Select required series
 
     # Fitting settings
-    baseline = 21.5
     expansion = 2
     fp = 200
     # Theoretical curve parameters
-    A = 4.5
-    k = 0.2
+    A = 7
+    k = 1
 
     # Fitting curves
-    theoretical_curves, parameters, qtf = lmfit.fit_peaks(
-        data, baseline=baseline, expansion=expansion, fp=fp, A=A, k=k)
+    theoretical_curves, parameters, qtf, baseline = lm.fit_peaks(
+        data, baseline=None, expansion=expansion, fp=fp, A=A, k=k)
 
     # Showing results
-    print('Parameters:', parameters, 'qtf:', qtf)
+    print('Parameters: ', parameters, 'qtf: ', qtf, 'baseline: ', baseline)
 
     # Plotting
     data.plot()
@@ -73,11 +74,15 @@ def vec_curve(Y: List[float], t: List[float], roots: List[float]) -> List[float]
     Returns:
         list: Prepared curve for LM algorithm with vectorized parameters.
     """
-    return Y - roots[0] + roots[1] * (t - roots[2]) * np.exp(- roots[3] * (t - roots[2]))
+    return Y - (roots[0] + roots[1] * (t - roots[2]) * np.exp(- roots[3] * (t - roots[2])))
+
+def auto_baseline(data):
+    numeric_values = list(filter(lambda value: not np.isnan(value), data))
+    return np.mean(numeric_values) + np.std(numeric_values)
 
 def fit_peaks(
-    data: pd.Series, baseline: float = 21.5, expansion: int = 2,
-    fp: int = 200, A: float = 4.5, k: float = 0.2) -> Tuple[pd.Series, List[float], List[float]]:
+    data: pd.Series, baseline: float = None, expansion: int = 2,
+    fp: int = 200, A: float = 4.5, k: float = 0.2) -> Tuple[pd.Series, List[float], List[float], float]:
     """Calculates theoretical parameters from an experimental curve with help of LM algorithm.
 
     Calculates theoretical parameters from an experimental curve with help of LM algorithm and
@@ -85,7 +90,8 @@ def fit_peaks(
 
     Args:
         data: Initial data.
-        baseline: Data separator line.
+        baseline: Data separator line. Will be automatically calculated if `None` with
+            std(data) + mean(data). Default: None
         expansion: Value at which the peaks will expand (on both directions).
         fp: Number of fitting points.
         A: `A` parameter.
@@ -94,8 +100,12 @@ def fit_peaks(
     Returns:
         pd.Series: Theoretical curves,
         List[float]: List of calculated parameters,
-        List[float]: List of errors.        
+        List[float]: List of errors,
+        float: Baseline value.
     """
+    if baseline is None:
+        baseline = auto_baseline(data)
+
     data_above_baseline = de.baseline_cut(data, baseline)
     peaks = de.separate_peaks(data_above_baseline)
     embedded_peaks = de.add_expansions(data, peaks, expansion)
@@ -115,13 +125,39 @@ def fit_peaks(
         sol_parameters = np.abs(sol.x)
         sol_qtf = np.abs(sol.qtf)
 
-        fitting_times = np.linspace(peak.index[0], peak.index[-1], fp)
+        if check_peak(A_0, A, t_0, sol_qtf, peak):
+            fitting_times = np.linspace(peak.index[0], peak.index[-1], fp)
 
-        theoretical_curve_data = theoretical_curve(sol_parameters, fitting_times)
-        theoretical_curve_series = pd.Series(data=theoretical_curve_data, index=fitting_times)
+            theoretical_curve_data = theoretical_curve(sol_parameters, fitting_times)
+            theoretical_curve_series = pd.Series(data=theoretical_curve_data, index=fitting_times)
 
-        theoretical_curves = theoretical_curves.append(theoretical_curve_series)
-        parameters.append(sol_parameters)
-        qtf.append(sol_qtf)
+            theoretical_curves = theoretical_curves.append(theoretical_curve_series)
+            parameters.append(sol_parameters)
+            qtf.append(sol_qtf)
     
-    return theoretical_curves, parameters, qtf
+    return theoretical_curves, parameters, qtf, baseline
+
+def check_peak(A_0, A, t_0, qtf, peak):
+    """Checks peak on some conditions.
+
+    Check peak with conditions:
+    1. A_0 / A * exp > 1.
+    2. t_0 > 0
+    3. std(qtf) < 100
+    4. peak amplitude > 5
+
+    Args:
+        A_0: `A_0` parameter.
+        A: `A` parameter.
+        t_0: `t_0` parameter.
+        qtf: Error.
+        peak: Peak data.
+    
+    Returns:
+        bool: `True` if conditions are done, else `False`.
+    """
+    peak_amplitude = np.max(peak) - np.min(peak)
+    if (A_0 / A * np.exp(1) > 1) and (t_0 > 0) and (np.std(qtf) < 100) and (peak_amplitude > 5):
+        return True
+    else:
+        return False

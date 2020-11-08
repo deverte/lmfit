@@ -3,7 +3,33 @@
 from typing import List
 
 import pandas as pd
+import numpy as np
 
+
+def read_data(data_path: str) -> pd.DataFrame:
+    """Extracts experimantal data from table and transforms it to time series data.
+
+    Args:
+        data_path: Path to experimental data.
+
+    Returns:
+        pandas.DataFrame: Time series data table.
+    """
+    df = pd.read_csv(data_path, sep=',', decimal='.', index_col=0, na_values='')
+
+    tracks = np.unique(df['TRACK_ID'].values)
+    time = np.unique(df['POSITION_T'].values)
+
+    new_df = pd.DataFrame(
+        data=[[np.nan for track in tracks] for t in time],
+        index=time, columns=tracks, dtype=np.float32)
+
+    zipped_data = list(zip(df['TRACK_ID'].values, df['POSITION_T'].values, df['MEAN_INTENSITY'].values))
+
+    for i, element in enumerate(zipped_data):
+        new_df.at[element[1], element[0]] = element[2]
+    
+    return new_df
 
 def baseline_cut(data: pd.Series, baseline: float) -> pd.Series:
     """Selects data above the baseline.
