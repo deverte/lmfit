@@ -9,9 +9,10 @@ using Levenberg–Marquardt (LM) algorithm (see [Wikipedia — Levenberg–Marqu
 
 
 - [Installation](#installation)
+- [Update](#update)
 - [Documentation](#documentation)
-    - [fit](#lmfitfitdata-baseline215-expansion2-fp200-a45-k02)
-    - [read_data](#lmfitread_datadata_path)
+    - [lmfit.fit_peaks](#lmfitfit_peaksdata-baselinenone-expansion2-fp200-a7-k1)
+    - [lmfit.read_data](#lmfitread_datadata_path)
 - [Usage](#usage)
 - [Package information](#package-information)
 - [License](#license)
@@ -21,19 +22,27 @@ using Levenberg–Marquardt (LM) algorithm (see [Wikipedia — Levenberg–Marqu
 
 ## Installation
 ```sh
-pip install https://github.com/deverte/lmfit/releases/download/v0.1.1/lmfit-0.1.1-py3-none-any.whl
+pip install https://github.com/deverte/lmfit/releases/download/v0.1.2/lmfit-0.1.2-py3-none-any.whl
 ```
 
 or
 
 ```sh
-pip install https://github.com/deverte/lmfit/releases/download/v0.1.1/lmfit-0.1.1.tar.gz
+pip install https://github.com/deverte/lmfit/releases/download/v0.1.2/lmfit-0.1.2.tar.gz
 ```
+
+## Update
+```sh
+pip uninstall lmfit
+```
+
+and [Installation](#Installation).
+
 
 ## Documentation
 The main function of this package is `fit_peaks`.
 
-### lmfit.fit(data, baseline=21.5, expansion=2, fp=200, A=4.5, k=0.2)
+### lmfit.fit_peaks(data, baseline=None, expansion=2, fp=200, A=7, k=1)
 > Calculates theoretical parameters from an experimental curve with help of LM algorithm and returns theoretical curves, these parameters and their errors.  
 >
 > Args:  
@@ -41,13 +50,13 @@ The main function of this package is `fit_peaks`.
 &nbsp;&nbsp;&nbsp;&nbsp;`baseline` [*float*]: Data separator line. Will be automatically calculated if `None` with std(data) + mean(data). Default: `None`.  
 &nbsp;&nbsp;&nbsp;&nbsp;`expansion` [*int*]: Value at which the peaks will expand (on both directions). Default: `2`.  
 &nbsp;&nbsp;&nbsp;&nbsp;`fp` [*int*]: Number of fitting points. Default: `200`.  
-&nbsp;&nbsp;&nbsp;&nbsp;`A` [*float*]: Initial `A` parameter. Default: `4.5`.  
-&nbsp;&nbsp;&nbsp;&nbsp;`k` [*float*]: Initial `k` parameter. Default: `0.2`.  
+&nbsp;&nbsp;&nbsp;&nbsp;`A` [*float*]: Initial `A` parameter. Default: `7`.  
+&nbsp;&nbsp;&nbsp;&nbsp;`k` [*float*]: Initial `k` parameter. Default: `1`.  
 > 
 > Returns:  
-&nbsp;&nbsp;&nbsp;&nbsp;*pandas.Series*: Theoretical curves,  
-&nbsp;&nbsp;&nbsp;&nbsp;*List[float]*: List of calculated parameters,  
-&nbsp;&nbsp;&nbsp;&nbsp;*List[float]*: List of errors,  
+&nbsp;&nbsp;&nbsp;&nbsp;*List[pandas.Series]*: Theoretical curves,  
+&nbsp;&nbsp;&nbsp;&nbsp;*List[List[float]]*: List of calculated parameters,  
+&nbsp;&nbsp;&nbsp;&nbsp;*List[List[float]]*: List of errors,  
 &nbsp;&nbsp;&nbsp;&nbsp;*float*: Baseline value.  
 
 Also you can read experimantal data and convert it to time series table with `read_data`.
@@ -88,7 +97,8 @@ print('Parameters: ', parameters, 'qtf: ', qtf, 'baseline: ', baseline)
 
 # Plotting
 data.plot()
-theoretical_curves.plot()
+for tc in theoretical_curves:
+    tc.plot()
 ```
 
 ## Package information

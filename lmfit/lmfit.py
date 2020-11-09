@@ -31,7 +31,8 @@ Levenberg–Marquardt (LM) algorithm
 
     # Plotting
     data.plot()
-    theoretical_curves.plot()
+    for tc in theoretical_curves:
+        tc.plot()
 """
 
 from typing import List
@@ -75,13 +76,21 @@ def vec_curve(Y: List[float], t: List[float], roots: List[float]) -> List[float]
     """
     return Y - (roots[0] + roots[1] * (t - roots[2]) * np.exp(- roots[3] * (t - roots[2])))
 
-def auto_baseline(data):
+def auto_baseline(data: pd.Series):
+    """Automatically builds a baseline as `mean(data) + std(data)`.
+
+    Args:
+        data: Initial data.
+    
+    Returns:
+        float: Baseline value.
+    """
     numeric_values = list(filter(lambda value: not np.isnan(value), data))
     return np.mean(numeric_values) + np.std(numeric_values)
 
 def fit_peaks(
-    data: pd.Series, baseline: float = None, expansion: int = 2,
-    fp: int = 200, A: float = 4.5, k: float = 0.2) -> Tuple[pd.Series, List[float], List[float], float]:
+    data: pd.Series, baseline: float = None, expansion: int = 2, fp: int = 200, A: float = 7,
+    k: float = 1) -> Tuple[List[pd.Series], List[List[float]], List[List[float]], float]:
     """Calculates theoretical parameters from an experimental curve with help of LM algorithm.
 
     Calculates theoretical parameters from an experimental curve with help of LM algorithm and
@@ -97,9 +106,9 @@ def fit_peaks(
         k: `k` parameter.
 
     Returns:
-        pd.Series: Theoretical curves,
-        List[float]: List of calculated parameters,
-        List[float]: List of errors,
+        List[pd.Series]: List of theoretical curves,
+        List[List[float]]: List of calculated parameters `A_0`, `A`, `t_0`, `k`,
+        List[List[float]]: List of errors `A_0`, `A`, `t_0`, `k`,
         float: Baseline value.
     """
     if baseline is None:
@@ -109,7 +118,7 @@ def fit_peaks(
     peaks = de.separate_peaks(data_above_baseline)
     embedded_peaks = de.add_expansions(data, peaks, expansion)
 
-    theoretical_curves = pd.Series()
+    theoretical_curves = []
     parameters = []
     qtf = []
     for peak in embedded_peaks:
@@ -119,8 +128,7 @@ def fit_peaks(
         
         sol = optimize.root(
             lambda x: vec_curve(peak.values, peak.index, x),
-            [A_0, A, t_0, k],
-            method='lm')
+            [A_0, A, t_0, k], method='lm')
         sol_parameters = np.abs(sol.x)
         sol_qtf = np.abs(sol.qtf)
 
@@ -130,7 +138,7 @@ def fit_peaks(
             theoretical_curve_data = theoretical_curve(sol_parameters, fitting_times)
             theoretical_curve_series = pd.Series(data=theoretical_curve_data, index=fitting_times)
 
-            theoretical_curves = theoretical_curves.append(theoretical_curve_series)
+            theoretical_curves.append(theoretical_curve_series)
             parameters.append(sol_parameters)
             qtf.append(sol_qtf)
     
