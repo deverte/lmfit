@@ -22,13 +22,13 @@ using Levenberg–Marquardt (LM) algorithm (see [Wikipedia — Levenberg–Marqu
 
 ## Installation
 ```sh
-pip install https://github.com/deverte/lmfit/releases/download/v0.1.2/lmfit-0.1.2-py3-none-any.whl
+pip install https://github.com/deverte/lmfit/releases/download/v0.1.3/lmfit-0.1.3-py3-none-any.whl
 ```
 
 or
 
 ```sh
-pip install https://github.com/deverte/lmfit/releases/download/v0.1.2/lmfit-0.1.2.tar.gz
+pip install https://github.com/deverte/lmfit/releases/download/v0.1.3/lmfit-0.1.3.tar.gz
 ```
 
 ## Update
@@ -55,8 +55,8 @@ The main function of this package is `fit_peaks`.
 > 
 > Returns:  
 &nbsp;&nbsp;&nbsp;&nbsp;*List[pandas.Series]*: Theoretical curves,  
-&nbsp;&nbsp;&nbsp;&nbsp;*List[List[float]]*: List of calculated parameters,  
-&nbsp;&nbsp;&nbsp;&nbsp;*List[List[float]]*: List of errors,  
+&nbsp;&nbsp;&nbsp;&nbsp;*List[List[float]]*: List of calculated parameters `A_0`, `A`, `t_0`, `k`,  
+&nbsp;&nbsp;&nbsp;&nbsp;*List[List[float]]*: List of standard deviations of `A_0`, `A`, `t_0`, `k`,  
 &nbsp;&nbsp;&nbsp;&nbsp;*float*: Baseline value.  
 
 Also you can read experimantal data and convert it to time series table with `read_data`.
@@ -93,7 +93,7 @@ theoretical_curves, parameters, qtf, baseline = lm.fit_peaks(
     data, baseline=None, expansion=expansion, fp=fp, A=A, k=k)
 
 # Showing results
-print('Parameters: ', parameters, 'qtf: ', qtf, 'baseline: ', baseline)
+print('Parameters: ', parameters, 'standard deviations: ', sds, 'baseline: ', baseline)
 
 # Plotting
 data.plot()
